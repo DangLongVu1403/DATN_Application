@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "530664421599",
+    "project_id": "notification-6e582",
+    "storage_bucket": "notification-6e582.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530664421599:android:5adf8f1a105455e25d916a",
+        "android_client_info": {
+          "package_name": "com.busapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUmQ2VxOoBFuA8o7YCB5mDrxRuCizLUPE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

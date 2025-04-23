@@ -1,0 +1,56 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+# Đặt phiên bản iOS tối thiểu (Firebase yêu cầu ít nhất iOS 13.0)
+platform :ios, '13.0'
+
+# Chuẩn bị dự án React Native
+prepare_react_native_project!
+
+# Kiểm tra biến môi trường USE_FRAMEWORKS (nếu có)
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+# Thêm cấu hình Firebase
+pod 'Firebase', :modular_headers => true
+pod 'FirebaseCore', :modular_headers => true
+pod 'GoogleUtilities', :modular_headers => true
+
+target 'TempProject' do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # Tắt Fabric/New Architecture nếu không cần
+    :fabric_enabled => false,
+    # Đường dẫn tuyệt đối đến thư mục gốc ứng dụng
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+  pod 'Firebase/Core', '~> 10.10.0'
+  pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
+  pod 'RNFBMessaging', :path => '../node_modules/@react-native-firebase/messaging'
+
+  post_install do |installer|
+    # Cấu hình post-install cho React Native
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+
+    # Thêm cấu hình bổ sung cho Firebase
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Đảm bảo phiên bản iOS tối thiểu
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      end
+    end
+  end
+end
